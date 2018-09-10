@@ -1,6 +1,6 @@
 #include<stdio.h>
 int main()
 {
-	printf("Test.c");
+	printf("st.c");
 	return 0;
 }

@@ -1,23 +1,8 @@
 /* There is a problem in this code, just try to understand the readFromFile() and append() right next to it. What here we’re doing is, inserting strings from files to trie, which unfortunately is not happening, share your views on this. However there’s no compilation error. */
-
- 
-
- 
-
- 
-
- 
-
 #include <stdio.h>
-
+#include <stdlib.h>
 #include <string.h>
-
- 
-
 //**********************************************************
-
- 
-
 #define CSIZE 26
 
 int i;
@@ -64,6 +49,8 @@ struct Trie* getNewTrieNode()
 
  
 
+void append(char chRead);
+void insertIntoTrie(struct Trie* *head, char* str);
 int readFromFile(struct Trie* *head)
 
 {
@@ -86,7 +73,7 @@ int readFromFile(struct Trie* *head)
 
                            {
 
-                                         insertIntoTrie(&head, strRead);
+                                         insertIntoTrie(head, strRead);
 
                                          char s1[1];
 
@@ -140,7 +127,7 @@ int haveChildren(struct Trie* curr)
 
  
 
-int search(struct Trie* head, char* str)
+int search(struct Trie** head, char* str)
 
 {
 
@@ -150,7 +137,7 @@ int search(struct Trie* head, char* str)
 
  
 
-    struct Trie* curr=head;
+    struct Trie* curr=*head;
 
     while (*str)
 
@@ -199,6 +186,7 @@ void insertIntoTrie(struct Trie* *head, char* str)
 }
 
  
+
 
 int deletion(struct Trie* *curr, char* str)
 

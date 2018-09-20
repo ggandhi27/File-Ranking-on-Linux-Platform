@@ -5,11 +5,18 @@
 // currently Trie supports lowercase English characters (a - z)
 #define CHAR_SIZE 26
 
+
+struct list{
+	char fileName[4096];
+	struct list *next;
+};
+
 // A Trie node
 struct Trie
 {
     int isLeaf;    // 1 when node is a leaf node
     struct Trie* character[CHAR_SIZE];
+    struct list *fileList;
 };
 
 // Function that returns a new Trie node
@@ -21,11 +28,12 @@ struct Trie* getNewTrieNode()
     for (int i = 0; i < CHAR_SIZE; i++)
         node->character[i] = NULL;
 
+    node->fileList = NULL;
     return node;
 }
 
 // Iterative function to insert a string in Trie.
-void insert(struct Trie* *head, char* str)
+void insert(struct Trie* *head, char* str,char* fileName)
 {
     // start from root node
     struct Trie* curr = *head;
@@ -44,6 +52,13 @@ void insert(struct Trie* *head, char* str)
 
     // mark current node as leaf
     curr->isLeaf = 1;
+    
+
+    /**********************************************************************************
+     * Initate a function to create linked list here to insert a node in linked list. *
+     * That node will contain the name of the file in which that word is present.     *
+     **********************************************************************************
+     */
 }
 
 // Iterative function to search a string in Trie. It returns 1
@@ -138,7 +153,15 @@ int deletion(struct Trie* *curr, char* str)
 void initiateTrie(struct Trie** head)
 {
 	FILE *fp;
-	fp = fopen("Text.txt","r");
+
+	/********************************************************
+	 * Here the file name is supposed to be given by the	*
+	 * function which reads the present working directory	*
+	 * and returns us the name of the file one by one.	*
+	 * ******************************************************
+	 */
+	char fileName[]="Text.txt";
+	fp = fopen(fileName,"r");
 	if (!fp){
 		printf("File not open");
 	}
@@ -149,10 +172,11 @@ void initiateTrie(struct Trie** head)
 	while((!feof(fp))&&(i<=4096))
 	{
 		c = fgetc(fp);
-		if((c==' ')||(c=='\n'))
+		if((c==' ')||(c=='\n')||(c=='.'))
+
 		{
 			printf("%s\n",word);
-			insert(head,word);
+			insert(head,word,fileName);
 			memset(word,0,strlen(word));
 			i = 0;
 		}

@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <unistd.h>
+
+
 // define character size
 // currently Trie supports lowercase English characters (a - z)
 #define CHAR_SIZE 26
@@ -153,46 +157,75 @@ int deletion(struct Trie* *curr, char* str)
 void initiateTrie(struct Trie** head)
 {
 	FILE *fp;
-
+	DIR *d;
+	struct dirent *dir;
+	char fileName[4096];
+	int len;
 	/********************************************************
 	 * Here the file name is supposed to be given by the	*
 	 * function which reads the present working directory	*
 	 * and returns us the name of the file one by one.	*
 	 * ******************************************************
 	 */
-	char fileName[]="Text.txt";
-	fp = fopen(fileName,"r");
-	if (!fp){
-		printf("File not open");
-	}
-	char word[4096];
-	int i;
-	char c;
-	i = 0;
-	while((!feof(fp))&&(i<=4096))
+	char cwd[4096];
+	if((getcwd(cwd,sizeof(cwd))==NULL))
 	{
-		c = fgetc(fp);
-		if((c==' ')||(c=='\n')||(c=='.'))
+		//If it is not able to fetch the path of the current working directory.
+		perror("getcwd() error!");        
+		exit(-1);
+	}
 
+	len = strlen(cwd);
+	if(cwd[len-1]!='/')
+        {
+                strcat(cwd,"/");
+        }
+
+        d=opendir(cwd);
+
+	if(d)
+	{
+		while((dir=readdir(d))!=NULL)
 		{
-			printf("%s\n",word);
-			insert(head,word,fileName);
-			memset(word,0,strlen(word));
-			i = 0;
+			if(dir->d_type!=DT_DIR)
+			{
+				strcpy(fileName,dir->d_name);
+				fp = fopen(fileName,"r");
+				if (!fp)
+				{
+					printf("File not open");
+				}
+				char word[4096];
+				int i;
+				char c;
+				i = 0;
+				while((!feof(fp))&&(i<=4096))
+				{
+					c = fgetc(fp);
+					if((c==' ')||(c=='\n')||(c=='.'))
+					{
+						printf("%s\n",word);
+						insert(head,word,fileName);
+						memset(word,0,strlen(word));
+						i = 0;
+					}
+					else
+					{
+						word[i]=c;
+						i++;
+					}
+				}
+			}
 		}
-		else
-		{
-			word[i]=c;
-			i++;
-		}
+
 	}
 }
 
 // Trie Implementation in C - Insertion, Searching and Deletion
 int main()
 {
-    struct Trie* head = getNewTrieNode();
 
+    struct Trie* head = getNewTrieNode();
     initiateTrie(&head);
 
     /*

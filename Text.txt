@@ -1,0 +1,4 @@
+This is a text file.
+This file is added 
+to test the code for 
+creating a trie.

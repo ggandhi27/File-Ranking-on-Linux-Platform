@@ -1,3 +1,4 @@
+
 /* There is a problem in this code, just try to understand the readFromFile() and append() right next to it. What here we’re doing is, inserting strings from files to trie, which unfortunately is not happening, share your views on this. However there’s no compilation error. */
 #include <stdio.h>
 #include <stdlib.h>

@@ -190,6 +190,7 @@ void initiateTrie(struct Trie** head)
 			if(dir->d_type!=DT_DIR)
 			{
 				strcpy(fileName,dir->d_name);
+				printf("File Name is : %s\n",fileName);
 				fp = fopen(fileName,"r");
 				if (!fp)
 				{
@@ -202,7 +203,7 @@ void initiateTrie(struct Trie** head)
 				while((!feof(fp))&&(i<=4096))
 				{
 					c = fgetc(fp);
-					if((c==' ')||(c=='\n')||(c=='.'))
+					if(!(((c>='A')&&(c<='Z'))||((c>='a')&&(c<='z'))))
 					{
 						printf("%s\n",word);
 						insert(head,word,fileName);

@@ -82,11 +82,16 @@ void insert(struct Trie* *head, char* str,char* fileName)
 			temp = temp->next;
 		}
 		if(temp->next == NULL){
-			newNode = (struct List *)malloc(sizeof(struct List));
-			newNode->next = NULL;
-			strcpy(newNode->fileName,fileName);
-			temp->next = newNode;
-			temp->count = 1;
+			if(strcmp(temp->fileName,fileName)==0){
+				temp->count++;
+			}
+			else{
+				newNode = (struct List *)malloc(sizeof(struct List));
+				newNode->next = NULL;
+				newNode->count = 1;
+				strcpy(newNode->fileName,fileName);
+				temp->next = newNode;
+			}
 		}
 	}
 }

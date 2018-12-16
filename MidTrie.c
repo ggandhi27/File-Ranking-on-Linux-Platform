@@ -10,6 +10,17 @@
 #define CHAR_SIZE 26
 
 
+
+struct Word{
+	char word[256];
+	struct Word *next;
+};
+
+struct File{
+	char fileName[4096];
+	struct File *next;
+};
+
 struct List{
 	char fileName[4096];
 	struct List *next;
@@ -270,6 +281,40 @@ void initiateTrie(struct Trie** head)
 	}
 }
 
+void performTfIdf(struct Trie *head,char *query){
+
+	//Create a Linked List of words present in the query.
+	
+	struct Word *queryList;
+	char *token = strtok(query," ");
+	queryList = NULL;
+	while (token != NULL){
+		
+		if (queryList == NULL){
+			queryList = (struct Word *)malloc(sizeof(struct Word));
+			queryList->next = NULL;
+			strcpy(queryList->word, token);
+		}
+		else{
+			struct Word *temp,*newNode;
+			temp = queryList;
+			while(temp->next != NULL){
+				temp = temp->next;
+			}
+			newNode = (struct Word *)malloc(sizeof(struct Word));
+			newNode->next = NULL;
+			strcpy(newNode->word,token);
+			temp->next = newNode;
+		}
+		
+		token = strtok(NULL," ");
+	}
+	//Create a Linked of files present in the current working directory.
+	
+	struct File *fileList;
+
+}
+
 // Trie Implementation in C - Insertion, Searching and Deletion
 int main()
 {
@@ -299,7 +344,7 @@ int main()
     char query[4096];
     printf("Enter a string : ");
     scanf("%s",query);
-    printf("%d ", search(head,query));        // print 0
+    performTfIdf(head,query);
 
 return 0;
 }

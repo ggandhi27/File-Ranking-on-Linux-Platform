@@ -290,6 +290,7 @@ void performTfIdf(struct Trie *head,char *query){
 	int wordCount;
 	wordCount = 0;
 	queryList = NULL;
+	printf("Query is %s\n",query);
 	while (token != NULL){
 		
 		if (queryList == NULL){
@@ -419,6 +420,7 @@ int main()
     char query[4096];
     printf("Enter a string : ");
     scanf("%s",query);
+	printf("Query 1 is %s",query);
     performTfIdf(head,query);
 
 return 0;

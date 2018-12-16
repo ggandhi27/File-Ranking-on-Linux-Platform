@@ -10,25 +10,28 @@
 #define CHAR_SIZE 26
 
 
-
+//Structure to create a list of words in the query
 struct Word{
 	char word[256];
 	struct Word *next;
 };
 
+
+//Structure to create a list of files in the present working directory.
 struct File{
 	char fileName[4096];
 	struct File *next;
 	double weight;
 };
 
+//Structure to create a list of files at the leaf nodes of a trie.
 struct List{
 	char fileName[4096];
 	struct List *next;
 	int count;
 };
 
-// A Trie node
+//Structure to create a trie node.
 struct Trie
 {
     int isLeaf;    // 1 when node is a leaf node

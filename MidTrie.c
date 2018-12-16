@@ -212,6 +212,9 @@ void initiateTrie(struct Trie** head)
 					}
 					else
 					{
+						if((c>='A')&&(c<='Z')){
+							c = c + 32;
+						}
 						word[i]=c;
 						i++;
 					}
@@ -225,7 +228,7 @@ void initiateTrie(struct Trie** head)
 // Trie Implementation in C - Insertion, Searching and Deletion
 int main()
 {
-
+//	printf("Hello");
     struct Trie* head = getNewTrieNode();
     initiateTrie(&head);
 

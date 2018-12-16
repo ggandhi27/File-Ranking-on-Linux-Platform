@@ -290,7 +290,6 @@ void performTfIdf(struct Trie *head,char *query){
 	int wordCount;
 	wordCount = 0;
 	queryList = NULL;
-	printf("Query is %s\n",query);
 	while (token != NULL){
 		
 		if (queryList == NULL){
@@ -310,7 +309,6 @@ void performTfIdf(struct Trie *head,char *query){
 			temp->next = newNode;
 		}
 		wordCount++;
-		printf("token is %s\n",token);
 		token = strtok(NULL," ");
 	}
 	//Create a Linked of files present in the current working directory.
@@ -373,22 +371,7 @@ void performTfIdf(struct Trie *head,char *query){
 		}
 	}
 
-	//Print the words and file list
-	//Testing that the linked lists are generated successfully.
-	struct Word *wtemp;
-	struct File *ftemp;
-	wtemp = queryList;
-	ftemp = fileList;
-	
-	while(wtemp!=NULL){
-		printf("words are %s\n",wtemp->word);
-		wtemp = wtemp->next;
-	}
 
-	while(ftemp!=NULL){
-		printf("Files are %s\n",ftemp->fileName);
-		ftemp = ftemp->next;
-	}
 }
 
 // Trie Implementation in C - Insertion, Searching and Deletion
@@ -419,8 +402,7 @@ int main()
 
     char query[4096];
     printf("Enter a string : ");
-    scanf("%s",query);
-	printf("Query 1 is %s",query);
+    scanf("%[^\n]%*c",query);
     performTfIdf(head,query);
 
 return 0;

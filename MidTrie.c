@@ -3,7 +3,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>
-
+#include <math.h>
 
 // define character size
 // currently Trie supports lowercase English characters (a - z)
@@ -19,6 +19,7 @@ struct Word{
 struct File{
 	char fileName[4096];
 	struct File *next;
+	double weight;
 };
 
 struct List{
@@ -35,6 +36,90 @@ struct Trie
     struct List *fileList;
 };
 
+
+/* function prototypes */
+struct File* SortedMerge(struct File* a, struct File* b); 
+void FrontBackSplit(struct File* source, 
+        struct File** frontRef, struct File** backRef); 
+  
+/* sorts the linked list by changing next pointers (not data) */
+void MergeSort(struct File** headRef) 
+{ 
+struct File* head = *headRef; 
+struct File* a; 
+struct File* b; 
+  
+/* Base case -- length 0 or 1 */
+if ((head == NULL) || (head->next == NULL)) 
+{ 
+    return; 
+} 
+  
+/* Split head into 'a' and 'b' sublists */
+FrontBackSplit(head, &a, &b);  
+  
+/* Recursively sort the sublists */
+MergeSort(&a); 
+MergeSort(&b); 
+  
+/* answer = merge the two sorted lists together */
+*headRef = SortedMerge(a, b); 
+} 
+  
+struct File* SortedMerge(struct File* a, struct File* b) 
+{ 
+struct File* result = NULL; 
+  
+/* Base cases */
+if (a == NULL) 
+    return(b); 
+else if (b==NULL) 
+    return(a); 
+  
+/* Pick either a or b, and recur */
+if (a->weight >= b->weight) 
+{ 
+    result = a; 
+    result->next = SortedMerge(a->next, b); 
+} 
+else
+{ 
+    result = b; 
+    result->next = SortedMerge(a, b->next); 
+} 
+return(result); 
+} 
+  
+/* UTILITY FUNCTIONS */
+/* Split the nodes of the given list into front and back halves, 
+    and return the two lists using the reference parameters. 
+    If the length is odd, the extra node should go in the front list. 
+    Uses the fast/slow pointer strategy. */
+void FrontBackSplit(struct File* source, 
+        struct File** frontRef, struct File** backRef) 
+{ 
+        struct File* fast; 
+        struct File* slow; 
+    slow = source; 
+    fast = source->next; 
+  
+    /* Advance 'fast' two nodes, and advance 'slow' one node */
+    while (fast != NULL) 
+    { 
+    fast = fast->next; 
+    if (fast != NULL) 
+    { 
+        slow = slow->next; 
+        fast = fast->next; 
+    } 
+    } 
+  
+    /* 'slow' is before the midpoint in the list, so split it in two 
+    at that point. */
+    *frontRef = source; 
+    *backRef = slow->next; 
+    slow->next = NULL; 
+} 
 // Function that returns a new Trie node
 struct Trie* getNewTrieNode()
 {
@@ -249,7 +334,7 @@ void initiateTrie(struct Trie** head)
 			if(dir->d_type!=DT_DIR)
 			{
 				strcpy(fileName,dir->d_name);
-				printf("File Name is : %s\n",fileName);
+				//printf("File Name is : %s\n",fileName);
 				fp = fopen(fileName,"r");
 				if (!fp)
 				{
@@ -264,7 +349,7 @@ void initiateTrie(struct Trie** head)
 					c = fgetc(fp);
 					if(!(((c>='A')&&(c<='Z'))||((c>='a')&&(c<='z'))))
 					{
-						printf("%s\n",word);
+				//		printf("%s\n",word);
 						insert(head,word,fileName);
 						memset(word,0,strlen(word));
 						i = 0;
@@ -353,6 +438,7 @@ void performTfIdf(struct Trie *head,char *query){
                 {
                         if(dir->d_type!=DT_DIR)
                         {
+				fileCount++;
 				if(fileList == NULL){
 					fileList = (struct File *)malloc(sizeof(struct File));
 					fileList->next = NULL;
@@ -370,15 +456,15 @@ void performTfIdf(struct Trie *head,char *query){
 					temp->next = newNode;
 				}
 			}
-			fileCount++;
 		}
 	}
 	
-	printf("Word Count %d File Count %d \n",wordCount,fileCount);
+//	printf("Word Count %d File Count %d \n",wordCount,fileCount);
 	//Implementing tf-idf
 	int wordVsFile[wordCount][fileCount];
 	float tfArray[wordCount][fileCount];
-	float idfArray[wordCount];
+	double idfArray[wordCount];
+	double tfidf[fileCount];
 	struct Word *wtemp;
 	struct File *ftemp;
 	int total[fileCount];
@@ -406,24 +492,56 @@ void performTfIdf(struct Trie *head,char *query){
 		wtemp = wtemp->next;
 		i++;
 	}
-
+	int s;
 	for(i=0;i<wordCount;i++)
-	{
+	{	
+		s = 0;
 		for(j=0;j<fileCount;j++){
 			if(total[j] == 0){
 				total[j] = 500;
 			}
-			
+			if(wordVsFile[i][j]!=0){
+				s++;
+			}
 			tfArray[i][j] = (float)wordVsFile[i][j]/(float)total[j];
 		}
+		idfArray[i] = log((double)fileCount/(double)s);
 	}
 
-	for(i=0;i<wordCount;i++){
-		for(j=0;j<fileCount;j++){
-			printf("%f\t",tfArray[i][j]);
+	for(j=0;j<fileCount;j++){
+		double x = 0.0;
+		for(i=0;i<wordCount;i++){
+			x = x+tfArray[i][j]*idfArray[i];
 		}
-		printf("\n");
+		tfidf[j] = x;
+//		printf("Weight[%d]  = %lf\n",j,tfidf[j]);
 	}
+	
+	ftemp = fileList;
+	i = 0;
+	while(ftemp!=NULL){
+		ftemp->weight = tfidf[i++];
+		ftemp = ftemp->next;
+	}
+	
+/*
+	printf("Before sorting \n");
+	
+	for(ftemp=fileList;ftemp!=NULL;ftemp = ftemp->next){
+		printf("%s : %lf \n",ftemp->fileName,ftemp->weight);
+	}
+*/
+	MergeSort(&fileList);
+	//Sort the file list
+
+	printf("\nFile Arranged the in decreasing order of their relevancy are : \n\n");
+
+	printf("FileName\t:\tRelevancy\n\n");	
+	for(ftemp=fileList;ftemp!=NULL;ftemp = ftemp->next){
+		printf("%s\t:\t%lf\n",ftemp->fileName,ftemp->weight);
+	}
+
+	
 	/*
 	i = 0;
 	j = 0;

@@ -10,9 +10,10 @@
 #define CHAR_SIZE 26
 
 
-struct list{
+struct List{
 	char fileName[4096];
-	struct list *next;
+	struct List *next;
+	int count;
 };
 
 // A Trie node
@@ -20,7 +21,7 @@ struct Trie
 {
     int isLeaf;    // 1 when node is a leaf node
     struct Trie* character[CHAR_SIZE];
-    struct list *fileList;
+    struct List *fileList;
 };
 
 // Function that returns a new Trie node
@@ -63,6 +64,31 @@ void insert(struct Trie* *head, char* str,char* fileName)
      * That node will contain the name of the file in which that word is present.     *
      **********************************************************************************
      */
+
+	if(curr->fileList == NULL){
+		curr->fileList = (struct List *)malloc(sizeof(struct List));
+		curr->fileList->next = NULL;
+		strcpy(curr->fileList->fileName,fileName);
+		curr->fileList->count = 1;
+	}
+	else{
+		struct List *temp,*newNode;
+		temp = curr->fileList;
+		while(temp->next != NULL){
+			if(strcmp(temp->fileName,fileName)==0){
+				temp->count++;
+				break;
+			}
+			temp = temp->next;
+		}
+		if(temp->next == NULL){
+			newNode = (struct List *)malloc(sizeof(struct List));
+			newNode->next = NULL;
+			strcpy(newNode->fileName,fileName);
+			temp->next = newNode;
+			temp->count = 1;
+		}
+	}
 }
 
 // Iterative function to search a string in Trie. It returns 1
@@ -76,8 +102,13 @@ int search(struct Trie* head, char* str)
     struct Trie* curr = head;
     while (*str)
     {
+	char c = *str;
+
+	if((c>='A')&&(c<='Z')){
+		c = c + 32;
+	}
         // go to next node
-        curr = curr->character[*str - 'a'];
+        curr = curr->character[c - 'a'];
 
         // if string is invalid (reached end of path in Trie)
         if (curr == NULL)
@@ -89,6 +120,15 @@ int search(struct Trie* head, char* str)
 
     // if current node is a leaf and we have reached the
     // end of the string, return 1
+
+	if(curr->fileList != NULL){
+		struct List *temp;
+		temp = curr->fileList;
+		while(temp!=NULL){
+			printf("The string is present in : %s , %d times.\n",temp->fileName,temp->count);
+			temp = temp->next;
+		}
+	}
     return curr->isLeaf;
 }
 

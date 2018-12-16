@@ -287,6 +287,8 @@ void performTfIdf(struct Trie *head,char *query){
 	
 	struct Word *queryList;
 	char *token = strtok(query," ");
+	int wordCount;
+	wordCount = 0;
 	queryList = NULL;
 	while (token != NULL){
 		
@@ -306,13 +308,86 @@ void performTfIdf(struct Trie *head,char *query){
 			strcpy(newNode->word,token);
 			temp->next = newNode;
 		}
-		
+		wordCount++;
+		printf("token is %s\n",token);
 		token = strtok(NULL," ");
 	}
 	//Create a Linked of files present in the current working directory.
 	
 	struct File *fileList;
+	fileList = NULL;
+	FILE *fp;
+        DIR *d;
+        struct dirent *dir;
+        char fileName[4096];
+        int len;
+        /********************************************************
+         * Here the file name is supposed to be given by the    *
+         * function which reads the present working directory   *
+         * and returns us the name of the file one by one.      *
+         * ******************************************************
+         */
+        char cwd[4096];
+	int fileCount;
+	fileCount = 0;
+        if((getcwd(cwd,sizeof(cwd))==NULL))
+        {
+                //If it is not able to fetch the path of the current working directory.
+                perror("getcwd() error!");
+                exit(-1);
+        }
 
+        len = strlen(cwd);
+        if(cwd[len-1]!='/')
+        {
+                strcat(cwd,"/");
+        }
+
+        d=opendir(cwd);
+
+        if(d)
+        {
+                while((dir=readdir(d))!=NULL)
+                {
+                        if(dir->d_type!=DT_DIR)
+                        {
+				if(fileList == NULL){
+					fileList = (struct File *)malloc(sizeof(struct File));
+					fileList->next = NULL;
+                                	strcpy(fileList->fileName,dir->d_name);
+				}
+				else{
+					struct File *temp,*newNode;
+					temp = fileList;
+					while(temp->next != NULL){
+						temp = temp->next;
+					}
+					newNode = (struct File *)malloc(sizeof(struct File));
+					newNode->next = NULL;
+					strcpy(newNode->fileName,dir->d_name);
+					temp->next = newNode;
+				}
+			}
+			fileCount++;
+		}
+	}
+
+	//Print the words and file list
+	//Testing that the linked lists are generated successfully.
+	struct Word *wtemp;
+	struct File *ftemp;
+	wtemp = queryList;
+	ftemp = fileList;
+	
+	while(wtemp!=NULL){
+		printf("words are %s\n",wtemp->word);
+		wtemp = wtemp->next;
+	}
+
+	while(ftemp!=NULL){
+		printf("Files are %s\n",ftemp->fileName);
+		ftemp = ftemp->next;
+	}
 }
 
 // Trie Implementation in C - Insertion, Searching and Deletion

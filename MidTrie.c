@@ -109,7 +109,7 @@ void insert(struct Trie* *head, char* str,char* fileName)
 
 // Iterative function to search a string in Trie. It returns 1
 // if the string is found in the Trie, else it returns 0
-int search(struct Trie* head, char* str)
+int search(struct Trie* head, char* str,char *filename)
 {
     // return 0 if Trie is empty
     if (head == NULL)
@@ -141,11 +141,14 @@ int search(struct Trie* head, char* str)
 		struct List *temp;
 		temp = curr->fileList;
 		while(temp!=NULL){
-			printf("The string is present in : %s , %d times.\n",temp->fileName,temp->count);
+			//printf("The string is present in : %s , %d times.\n",temp->fileName,temp->count);
+			if(strcmp(filename,temp->fileName)==0){
+				return temp->count;
+			}
 			temp = temp->next;
 		}
 	}
-    return curr->isLeaf;
+    return 0;
 }
 
 // returns 1 if given node has any children
@@ -370,8 +373,81 @@ void performTfIdf(struct Trie *head,char *query){
 			fileCount++;
 		}
 	}
+	
+	printf("Word Count %d File Count %d \n",wordCount,fileCount);
+	//Implementing tf-idf
+	int wordVsFile[wordCount][fileCount];
+	float tfArray[wordCount][fileCount];
+	float idfArray[wordCount];
+	struct Word *wtemp;
+	struct File *ftemp;
+	int total[fileCount];
+	int i,j;
+	
+	for(i=0;i<fileCount;i++){
+		total[i] = 0;
+	}
+	
+	wtemp = queryList;
+	ftemp = fileList;
 
+	i=0;
+	j=0;
+	
+	while(wtemp!=NULL){
+		j=0;
+		ftemp = fileList;
+		while(ftemp!=NULL){
+			wordVsFile [i][j] = search(head,wtemp->word,ftemp->fileName);
+			total[j] = total[j] + wordVsFile[i][j];
+			ftemp = ftemp->next;
+			j++;
+		}
+		wtemp = wtemp->next;
+		i++;
+	}
 
+	for(i=0;i<wordCount;i++)
+	{
+		for(j=0;j<fileCount;j++){
+			if(total[j] == 0){
+				total[j] = 500;
+			}
+			
+			tfArray[i][j] = (float)wordVsFile[i][j]/(float)total[j];
+		}
+	}
+
+	for(i=0;i<wordCount;i++){
+		for(j=0;j<fileCount;j++){
+			printf("%f\t",tfArray[i][j]);
+		}
+		printf("\n");
+	}
+	/*
+	i = 0;
+	j = 0;
+	wtemp = queryList;
+	ftemp = fileList;
+	printf("\t");
+	while(ftemp!=NULL){
+		printf("%s\t",ftemp->fileName);
+		ftemp = ftemp->next;
+	}
+	printf("\n");
+	while(wtemp!=NULL){
+		j = 0;
+		ftemp = fileList;
+		printf("%s\t",wtemp->word);
+		while(ftemp!=NULL){
+			printf("%d\t",wordVsFile[i][j]);
+			j++;
+			ftemp = ftemp->next;
+		}
+		wtemp = wtemp->next;
+		i++;
+		printf("\n");
+	}*/
 }
 
 // Trie Implementation in C - Insertion, Searching and Deletion

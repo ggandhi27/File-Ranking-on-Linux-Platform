@@ -42,6 +42,7 @@ struct Trie
 
 /* function prototypes */
 struct File* SortedMerge(struct File* a, struct File* b); 
+
 void FrontBackSplit(struct File* source, 
         struct File** frontRef, struct File** backRef); 
   
@@ -102,33 +103,35 @@ void FrontBackSplit(struct File* source,
         struct File** frontRef, struct File** backRef) 
 { 
         struct File* fast; 
-        struct File* slow; 
-    slow = source; 
-    fast = source->next; 
+	struct File* slow; 
+	slow = source; 
+	fast = source->next; 
   
-    /* Advance 'fast' two nodes, and advance 'slow' one node */
-    while (fast != NULL) 
-    { 
-    fast = fast->next; 
-    if (fast != NULL) 
-    { 
-        slow = slow->next; 
-        fast = fast->next; 
-    } 
-    } 
+    	/* Advance 'fast' two nodes, and advance 'slow' one node */
+    	while (fast != NULL) 
+    	{ 
+    		fast = fast->next; 
+    		if (fast != NULL) 
+    		{ 
+        		slow = slow->next; 
+        		fast = fast->next; 
+    		} 
+	} 
   
-    /* 'slow' is before the midpoint in the list, so split it in two 
-    at that point. */
-    *frontRef = source; 
-    *backRef = slow->next; 
-    slow->next = NULL; 
+    	/* 'slow' is before the midpoint in the list, so split it in two 
+    	at that point. */
+    	*frontRef = source; 
+    	*backRef = slow->next; 
+    	slow->next = NULL; 
 } 
 // Function that returns a new Trie node
 struct Trie* getNewTrieNode()
 {
+	//Allocate memory to the trie node.
     struct Trie* node = (struct Trie*)malloc(sizeof(struct Trie));
     node->isLeaf = 0;
 
+	//All the next pointers for the further nodes of the trie are set to null.
     for (int i = 0; i < CHAR_SIZE; i++)
         node->character[i] = NULL;
 
@@ -381,19 +384,25 @@ void performTfIdf(struct Trie *head,char *query){
 	int wordCount;
 	wordCount = 0;
 	queryList = NULL;
+	//Breaking the query string into different number of tokens
 	while (token != NULL){
-		
+		//Creating a linked list of the words in the query string
+
+		//If the linked list is empty i.e., for the first node in the list
 		if (queryList == NULL){
 			queryList = (struct Word *)malloc(sizeof(struct Word));
 			queryList->next = NULL;
 			strcpy(queryList->word, token);
 		}
+		//Creating further nodes in the linked list.
 		else{
 			struct Word *temp,*newNode;
 			temp = queryList;
+			//Traverse to the last node of the list.
 			while(temp->next != NULL){
 				temp = temp->next;
 			}
+			//Create a new node and attach it at the end of the list.
 			newNode = (struct Word *)malloc(sizeof(struct Word));
 			newNode->next = NULL;
 			strcpy(newNode->word,token);
@@ -411,15 +420,11 @@ void performTfIdf(struct Trie *head,char *query){
         struct dirent *dir;
         char fileName[4096];
         int len;
-        /********************************************************
-         * Here the file name is supposed to be given by the    *
-         * function which reads the present working directory   *
-         * and returns us the name of the file one by one.      *
-         * ******************************************************
-         */
         char cwd[4096];
 	int fileCount;
 	fileCount = 0;
+
+	//Get the current working directory.
         if((getcwd(cwd,sizeof(cwd))==NULL))
         {
                 //If it is not able to fetch the path of the current working directory.
